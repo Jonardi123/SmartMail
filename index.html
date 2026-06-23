@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="SmartMail is a premium AI email assistant for Gmail, local models, Groq backend workflows, follow-ups, cleanup, and fast replies." />
+<meta name="theme-color" content="#070910" />
+<meta property="og:title" content="SmartMail - AI Email Assistant" />
+<meta property="og:description" content="A premium AI command layer for Gmail: summaries, replies, follow-ups, cleanup, and provider-controlled AI." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="smartmail-og.svg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="SmartMail - AI Email Assistant" />
+<meta name="twitter:description" content="Turn email overload into executive clarity with SmartMail." />
+<meta name="twitter:image" content="smartmail-og.svg" />
+<title>SmartMail - AI Email Assistant</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="%23070910"/><path d="M13 23c0-6 7-10 19-10s19 4 19 10h-9c0-2-4-4-10-4s-10 2-10 4c0 7 30 1 30 17 0 7-8 11-20 11S12 47 12 40h9c0 3 4 5 11 5s11-2 11-5c0-7-30-1-30-17Z" fill="%238fb7ff"/><path d="M19 33h26" stroke="%2363e1c7" stroke-width="4" stroke-linecap="round"/></svg>' />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #070910;
+  --bg-soft: #0d111a;
+  --panel: rgba(255,255,255,0.062);
+  --panel-strong: rgba(255,255,255,0.092);
+  --line: rgba(255,255,255,0.12);
+  --line-strong: rgba(159,196,255,0.34);
+  --text: #f5f8ff;
+  --muted: rgba(226,234,247,0.68);
+  --faint: rgba(226,234,247,0.45);
+  --blue: #8fb7ff;
+  --cyan: #63e1c7;
+  --pink: #ff8faf;
+  --gold: #ffd88a;
+  --green: #79e6ae;
+  --shadow: 0 30px 90px rgba(0,0,0,0.48);
+  --radius: 22px;
+  --radius-sm: 14px;
+  --sans: "DM Sans", system-ui, sans-serif;
+  --display: "Space Grotesk", system-ui, sans-serif;
+  --mono: "DM Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(143,183,255,0.24), transparent 28rem),
+    radial-gradient(circle at 80% 16%, rgba(99,225,199,0.16), transparent 24rem),
+    linear-gradient(180deg, #070910 0%, #0b0e15 48%, #070910 100%);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.6;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+input { font: inherit; }
+*:focus-visible {
+  outline: 3px solid rgba(99,225,199,0.72);
+  outline-offset: 4px;
+}
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: 16px;
+  z-index: 100;
+  transform: translateY(-140%);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 800;
+  transition: transform 180ms ease;
+}
+.skip-link:focus { transform: translateY(0); }
+.page-shell { position: relative; isolation: isolate; }
+.page-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 75%);
+}
+.page-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% -12%, rgba(255,255,255,0.09), transparent 32rem);
+}
+
+.container { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+.nav {
+  position: sticky;
+  top: 14px;
+  z-index: 20;
+  width: min(1160px, calc(100% - 28px));
+  margin: 14px auto 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 12px 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(9,12,19,0.82);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.26);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  color: #07101d;
+  box-shadow: 0 12px 26px rgba(143,183,255,0.25);
+}
+.nav-links { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 13px; }
+.nav-links a { transition: color 180ms ease; }
+.nav-links a:hover { color: var(--text); }
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-primary {
+  color: #08111d;
+  background: linear-gradient(135deg, #d7e5ff 0%, var(--blue) 45%, var(--cyan) 100%);
+  box-shadow: 0 16px 40px rgba(143,183,255,0.26);
+}
+.btn-secondary {
+  color: var(--text);
+  border-color: var(--line);
+  background: rgba(255,255,255,0.06);
+}
+.btn-secondary:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.09); }
+
+.hero {
+  padding: 108px 0 74px;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(420px, 1.04fr);
+  align-items: center;
+  gap: 44px;
+}
+.hero-grid > *,
+.grid-3 > *,
+.pricing > *,
+.steps > *,
+.testimonials > *,
+.mock-app > * {
+  min-width: 0;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border: 1px solid rgba(143,183,255,0.26);
+  border-radius: 999px;
+  background: rgba(143,183,255,0.10);
+  color: #cfe0ff;
+  font: 12px var(--mono);
+}
+.hero h1 {
+  margin-top: 22px;
+  font-family: var(--display);
+  font-size: clamp(48px, 7.3vw, 88px);
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+  overflow-wrap: anywhere;
+}
+.gradient-text {
+  background: linear-gradient(135deg, #fff 0%, #bdd3ff 42%, #81ebd2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-copy {
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 18px;
+  max-width: 620px;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
+.hero-proof {
+  margin-top: 28px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.proof-pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,0.045);
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.product-frame {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-height: 540px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background:
+    radial-gradient(circle at 22% 10%, rgba(143,183,255,0.18), transparent 18rem),
+    linear-gradient(180deg, rgba(20,24,35,0.98), rgba(8,11,17,0.98));
+  box-shadow: var(--shadow), 0 1px 0 rgba(255,255,255,0.08) inset;
+  overflow: hidden;
+  padding: 16px;
+}
+.window-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  color: var(--faint);
+  font: 11px var(--mono);
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.22); }
+.mock-app {
+  height: 472px;
+  display: grid;
+  grid-template-columns: 64px 210px 1fr;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 22px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.035);
+}
+.mock-sidebar, .mock-list, .mock-reader { min-width: 0; }
+.mock-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+  background: rgba(255,255,255,0.035);
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+.mock-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.07);
+}
+.mock-icon.active { background: linear-gradient(135deg, rgba(143,183,255,0.36), rgba(99,225,199,0.24)); }
+.mock-list {
+  padding: 12px;
+  border-right: 1px solid rgba(255,255,255,0.07);
+}
+.mock-search {
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  margin-bottom: 12px;
+}
+.mock-email {
+  border: 1px solid transparent;
+  border-radius: 15px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(255,255,255,0.05);
+}
+.mock-email.active { border-color: rgba(143,183,255,0.34); background: rgba(143,183,255,0.13); }
+.mock-line { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.16); margin-bottom: 8px; }
+.mock-line.short { width: 58%; }
+.mock-line.tiny { height: 6px; width: 42%; background: rgba(255,255,255,0.08); }
+.mock-reader { padding: 20px; }
+.mock-toolbar { display: flex; gap: 8px; margin-bottom: 22px; }
+.mock-chip {
+  height: 32px;
+  min-width: 92px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.mock-title { width: 70%; height: 18px; border-radius: 999px; background: rgba(255,255,255,0.17); margin-bottom: 12px; }
+.mock-meta { width: 48%; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); margin-bottom: 26px; }
+.mock-body-card {
+  max-width: 100%;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(255,255,255,0.055);
+}
+.mock-ai {
+  max-width: 100%;
+  margin-top: 18px;
+  border: 1px solid rgba(143,183,255,0.25);
+  border-radius: 18px;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(143,183,255,0.18), rgba(99,225,199,0.10));
+}
+.mock-ai strong, .mock-body-card strong { display: block; margin-bottom: 8px; }
+.mock-ai span, .mock-body-card span { color: var(--muted); font-size: 13px; }
+.mock-ai span, .mock-body-card span, .hero-copy {
+  overflow-wrap: anywhere;
+}
+
+section { scroll-margin-top: 96px; }
+.section { padding: 86px 0; }
+.section-head {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+  margin-bottom: 42px;
+}
+.section-label {
+  color: var(--blue);
+  font: 12px var(--mono);
+  text-transform: uppercase;
+}
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+.section-copy { color: var(--muted); max-width: 650px; font-size: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 24px;
+  min-height: 230px;
+  box-shadow: 0 20px 70px rgba(0,0,0,0.16);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 0 0, rgba(143,183,255,0.14), transparent 17rem);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.card:hover { transform: translateY(-3px); border-color: var(--line-strong); background: var(--panel-strong); }
+.card:hover::before { opacity: 1; }
+.card > * { position: relative; }
+.card-icon {
+  min-width: 42px;
+  width: max-content;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, rgba(143,183,255,0.22), rgba(99,225,199,0.12));
+  color: #dbe8ff;
+}
+.card h3 { font-family: var(--display); font-size: 20px; margin-bottom: 9px; letter-spacing: -0.02em; }
+.card p { color: var(--muted); font-size: 14px; }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.step {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  background: rgba(255,255,255,0.045);
+}
+.step-number {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #07111e;
+  font-family: var(--display);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  margin-bottom: 18px;
+}
+.step h3 { font-family: var(--display); font-size: 18px; margin-bottom: 8px; }
+.step p { color: var(--muted); font-size: 14px; }
+
+.pricing {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr 0.9fr;
+  gap: 16px;
+  align-items: stretch;
+}
+.price-card {
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  padding: 26px;
+  background: rgba(255,255,255,0.045);
+}
+.price-card.featured {
+  border-color: rgba(143,183,255,0.40);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(143,183,255,0.18), transparent 20rem),
+    rgba(255,255,255,0.07);
+  box-shadow: var(--shadow);
+}
+.plan-name { color: var(--blue); font: 12px var(--mono); text-transform: uppercase; }
+.price { margin: 14px 0; font-family: var(--display); font-size: 42px; letter-spacing: -0.04em; }
+.price span { color: var(--faint); font: 14px var(--sans); }
+.plan-copy { color: var(--muted); min-height: 52px; }
+.plan-list { list-style: none; display: grid; gap: 10px; margin: 22px 0; color: var(--muted); font-size: 14px; }
+.plan-list li::before { content: "✓"; color: var(--green); margin-right: 8px; }
+
+.testimonials { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.quote { min-height: 260px; display: flex; flex-direction: column; justify-content: space-between; }
+.quote p { font-size: 15px; color: var(--muted); }
+.quote strong { display: block; margin-top: 20px; font-family: var(--display); }
+.quote span { color: var(--faint); font-size: 13px; }
+
+.faq {
+  display: grid;
+  grid-template-columns: 0.82fr 1.18fr;
+  gap: 28px;
+  align-items: start;
+}
+.faq-list { display: grid; gap: 12px; }
+details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.045);
+  padding: 16px 18px;
+}
+summary {
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+summary::-webkit-details-marker { display: none; }
+details p { margin-top: 10px; color: var(--muted); font-size: 14px; }
+
+.cta {
+  margin: 80px auto;
+  border: 1px solid rgba(143,183,255,0.28);
+  border-radius: 34px;
+  padding: 56px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(143,183,255,0.22), transparent 20rem),
+    radial-gradient(circle at 80% 60%, rgba(99,225,199,0.14), transparent 18rem),
+    rgba(255,255,255,0.055);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.cta h2 { font-family: var(--display); font-size: clamp(34px, 5vw, 62px); line-height: 1; letter-spacing: -0.045em; }
+.cta p { color: var(--muted); margin: 18px auto 28px; max-width: 620px; }
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding: 34px 0 46px;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+  color: var(--faint);
+  font-size: 13px;
+}
+.footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+.footer-links a { color: var(--muted); }
+.footer-links a:hover { color: var(--text); }
+
+.waitlist-panel {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  width: min(620px, 100%);
+  margin: 30px auto 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+}
+.waitlist-panel input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 0 14px;
+}
+.waitlist-panel input::placeholder { color: var(--faint); }
+.form-note {
+  min-height: 22px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 620ms ease, transform 620ms ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 980px) {
+  .nav {
+    align-items: flex-start;
+    border-radius: 24px;
+    flex-wrap: wrap;
+  }
+  .brand { width: auto; }
+  .nav-links {
+    order: 3;
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 2px 4px;
+  }
+  .nav-links a {
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 10px;
+    background: rgba(255,255,255,0.04);
+  }
+  .hero { padding-top: 76px; }
+  .hero-grid, .faq { grid-template-columns: 1fr; }
+  .product-frame { min-height: auto; }
+  .mock-app { grid-template-columns: 56px 1fr; }
+  .mock-list { display: none; }
+  .grid-3, .testimonials, .pricing, .steps { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .container {
+    width: calc(100% - 36px);
+    max-width: 1160px;
+  }
+  .nav {
+    top: 8px;
+    width: calc(100% - 32px);
+    align-items: stretch;
+    overflow: hidden;
+  }
+  .brand { margin-right: 0; }
+  .nav-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .nav-actions .btn-secondary { display: none; }
+  .nav-actions .btn-primary { width: 100%; }
+  .nav-links {
+    scrollbar-width: none;
+    padding-bottom: 0;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .hero h1 {
+    font-size: 42px;
+    line-height: 1;
+    max-width: 100%;
+    word-break: normal;
+  }
+  .hero h1 .hero-line,
+  .hero h1 .gradient-text {
+    display: block;
+  }
+  .hero-copy { font-size: 16px; }
+  .hero-copy-block,
+  .product-frame {
+    width: min(100%, 336px);
+    margin-inline: auto;
+  }
+  .hero-actions .btn { width: 100%; }
+  .hero-proof { display: grid; }
+  .mock-app { grid-template-columns: 1fr; height: auto; }
+  .mock-sidebar { display: none; }
+  .product-frame {
+    padding: 10px;
+    border-radius: 24px;
+  }
+  .mock-reader {
+    min-height: 420px;
+    padding: 14px;
+  }
+  .mock-toolbar { flex-wrap: wrap; }
+  .mock-chip { min-width: 0; width: 30%; }
+  .cta { padding: 34px 20px; }
+  .waitlist-panel {
+    grid-template-columns: 1fr;
+    border-radius: 24px;
+    padding: 12px;
+  }
+  .waitlist-panel input {
+    min-height: 44px;
+    padding: 0 8px;
+  }
+  .waitlist-panel .btn { width: 100%; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Compact phone pass */
+@media (max-width: 560px) {
+  .container {
+    width: calc(100% - 32px);
+    overflow: hidden;
+  }
+  .nav {
+    width: calc(100% - 28px);
+    padding: 10px;
+    gap: 10px;
+    border-radius: 18px;
+  }
+  .brand {
+    gap: 8px;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .nav-actions .btn-primary {
+    min-height: 38px;
+    font-size: 13px;
+  }
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    overflow: visible;
+  }
+  .nav-links a {
+    text-align: center;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+  .hero {
+    padding: 58px 0 42px;
+  }
+  .hero-copy-block,
+  .product-frame {
+    width: 100%;
+    max-width: 300px;
+  }
+  .eyebrow {
+    font-size: 10px;
+    padding: 6px 9px;
+  }
+  .hero h1 {
+    margin-top: 18px;
+    font-size: 30px;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+  .hero-copy {
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 1.62;
+  }
+  .btn {
+    max-width: 100%;
+  }
+  .hero-actions {
+    margin-top: 24px;
+  }
+  .proof-pill {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+  .section {
+    padding: 58px 0;
+  }
+  .section-title {
+    font-size: 30px;
+    letter-spacing: -0.03em;
+  }
+  .section-copy {
+    font-size: 14px;
+  }
+  .card,
+  .step,
+  .price-card {
+    padding: 18px;
+  }
+  .card h3 {
+    font-size: 18px;
+  }
+  .price {
+    font-size: 34px;
+  }
+  .cta {
+    margin: 56px auto;
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#features">Skip to content</a>
+<div class="page-shell">
+  <header class="nav" aria-label="Main navigation">
+    <a class="brand" href="#top" aria-label="SmartMail home">
+      <span class="brand-mark">S</span>
+      <span>SmartMail</span>
+    </a>
+    <nav class="nav-links" aria-label="Page sections">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#testimonials">Testimonials</a>
+      <a href="#faq">FAQ</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-secondary" href="#pricing">See plans</a>
+      <a class="btn btn-primary" href="smartmail.html">Open app</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy-block reveal">
+          <div class="eyebrow">AI email assistant for serious inboxes</div>
+          <h1><span class="hero-line">Turn email</span> <span class="hero-line">overload into</span> <span class="gradient-text">executive clarity.</span></h1>
+          <p class="hero-copy">SmartMail is a premium AI command layer for Gmail. Summarize threads, draft replies, track follow-ups, clean low-value mail, and choose exactly which AI provider runs your workflow.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="smartmail.html">Launch SmartMail</a>
+            <a class="btn btn-secondary" href="#features">Explore features</a>
+          </div>
+          <div class="hero-proof">
+            <span class="proof-pill">AI off until selected</span>
+            <span class="proof-pill">Groq backend supported</span>
+            <span class="proof-pill">Gmail stays source of truth</span>
+          </div>
+        </div>
+
+        <div class="product-frame reveal" aria-label="SmartMail product preview">
+          <div class="window-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span style="margin-left:auto">SmartMail workspace</span>
+          </div>
+          <div class="mock-app">
+            <aside class="mock-sidebar">
+              <div class="mock-icon active"></div>
+              <div class="mock-icon"></div>
+              <div class="mock-icon"></div>
+              <div style="flex:1"></div>
+              <div class="mock-icon"></div>
+            </aside>
+            <section class="mock-list">
+              <div class="mock-search"></div>
+              <div class="mock-email active">
+                <div class="mock-line"></div>
+                <div class="mock-line short"></div>
+                <div class="mock-line tiny"></div>
+              </div>
+              <div class="mock-email">
+                <div class="mock-line"></div>
+                <div class="mock-line short"></div>
+              </div>
+              <div class="mock-email">
+                <div class="mock-line"></div>
+                <div class="mock-line tiny"></div>
+              </div>
+              <div class="mock-email">
+                <div class="mock-line short"></div>
+                <div class="mock-line tiny"></div>
+              </div>
+            </section>
+            <section class="mock-reader">
+              <div class="mock-toolbar">
+                <div class="mock-chip"></div>
+                <div class="mock-chip"></div>
+                <div class="mock-chip"></div>
+              </div>
+              <div class="mock-title"></div>
+              <div class="mock-meta"></div>
+              <div class="mock-body-card">
+                <strong>Thread brief</strong>
+                <span>The customer needs a reply today, finance is waiting on approval, and the legal thread can be followed up in two days.</span>
+              </div>
+              <div class="mock-ai">
+                <strong>Suggested action</strong>
+                <span>Send a professional short reply, mark urgent, and set a follow-up reminder.</span>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-label">Features</div>
+          <h2 class="section-title">Everything a modern AI inbox should have.</h2>
+          <p class="section-copy">SmartMail gives users high-leverage controls without forcing them into a new email address, a new workflow, or a mystery AI model.</p>
+        </div>
+        <div class="grid-3">
+          <article class="card reveal">
+            <div class="card-icon">AI</div>
+            <h3>AI summaries and replies</h3>
+            <p>Summarize long emails, draft replies, improve tone, and use one-click reply styles like Professional, Friendly, Short, Apologetic, and No thanks.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">CL</div>
+            <h3>Inbox cleanup</h3>
+            <p>Find newsletters, spammy promotions, and old subscriptions. Cleanup stays SmartMail-only so users can review and hide noise safely.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">FU</div>
+            <h3>Follow-up tracking</h3>
+            <p>Set reminders like "remind me if they do not reply in two days" and keep important threads from disappearing under incoming mail.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">Ctrl K</div>
+            <h3>Command palette</h3>
+            <p>Press Ctrl K to run commands like summarize, draft reply, mark urgent, search sender, open privacy, or start inbox cleanup.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">PV</div>
+            <h3>Provider choice</h3>
+            <p>Use local LM Studio models, Groq through a backend, or other cloud providers. SmartMail does not run AI until the user chooses a model.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">PW</div>
+            <h3>PWA-ready workspace</h3>
+            <p>SmartMail includes app-style behavior, a secure Groq backend path, guest mode, news, attachments, scheduling, and polished desktop/mobile UI.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-label">How it works</div>
+          <h2 class="section-title">A focused workflow in four steps.</h2>
+          <p class="section-copy">Connect Gmail, choose your AI, open an email, and use SmartMail's command layer to act faster.</p>
+        </div>
+        <div class="steps">
+          <div class="step reveal">
+            <div class="step-number">1</div>
+            <h3>Connect Gmail</h3>
+            <p>Sign in with Google or start in guest mode to explore SmartMail-only messaging.</p>
+          </div>
+          <div class="step reveal">
+            <div class="step-number">2</div>
+            <h3>Choose AI</h3>
+            <p>Select a local model, Groq backend, or a cloud provider. AI stays off until selected.</p>
+          </div>
+          <div class="step reveal">
+            <div class="step-number">3</div>
+            <h3>Act on email</h3>
+            <p>Summarize, reply, schedule, label, search, and follow up from one polished workspace.</p>
+          </div>
+          <div class="step reveal">
+            <div class="step-number">4</div>
+            <h3>Clean safely</h3>
+            <p>Let AI identify low-value messages while SmartMail keeps cleanup reversible inside the app.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-label">Pricing</div>
+          <h2 class="section-title">Simple plans for launch.</h2>
+          <p class="section-copy">Pricing is ready to extend when SmartMail becomes a hosted product. The current app can run locally with user-provided keys.</p>
+        </div>
+        <div class="pricing">
+          <article class="price-card reveal">
+            <div class="plan-name">Starter</div>
+            <div class="price">$0 <span>/ local</span></div>
+            <p class="plan-copy">For trying SmartMail locally with guest mode, Gmail, and your own AI setup.</p>
+            <ul class="plan-list">
+              <li>Gmail workspace</li>
+              <li>Guest mode</li>
+              <li>Local AI support</li>
+            </ul>
+            <a class="btn btn-secondary" href="smartmail.html">Open app</a>
+          </article>
+          <article class="price-card featured reveal">
+            <div class="plan-name">Pro</div>
+            <div class="price">TBD <span>/ user</span></div>
+            <p class="plan-copy">For power users who want AI replies, follow-up tracking, cleanup, and provider routing.</p>
+            <ul class="plan-list">
+              <li>Groq backend workflow</li>
+              <li>Command palette</li>
+              <li>Follow-up reminders</li>
+              <li>AI inbox cleanup</li>
+            </ul>
+            <a class="btn btn-primary" href="smartmail.html">Start with Pro features</a>
+          </article>
+          <article class="price-card reveal">
+            <div class="plan-name">Team</div>
+            <div class="price">Custom</div>
+            <p class="plan-copy">For future shared inboxes, admin controls, and hosted deployment.</p>
+            <ul class="plan-list">
+              <li>Team policy controls</li>
+              <li>Shared workflows</li>
+              <li>Priority onboarding</li>
+            </ul>
+            <a class="btn btn-secondary" href="#faq">Read FAQ</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="testimonials">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-label">Testimonials</div>
+          <h2 class="section-title">Built for people who live in email.</h2>
+          <p class="section-copy">Early launch quotes for the people SmartMail is designed to serve.</p>
+        </div>
+        <div class="testimonials">
+          <article class="card quote reveal">
+            <p>"The command palette turns my inbox into an operating system. I can summarize, reply, and clean up without hunting through menus."</p>
+            <div><strong>Launch founder</strong><span>Early-stage operator</span></div>
+          </article>
+          <article class="card quote reveal">
+            <p>"The best part is control. AI stays off until I choose it, and cleanup does not touch Gmail unless I explicitly act."</p>
+            <div><strong>Security-minded user</strong><span>Privacy reviewer</span></div>
+          </article>
+          <article class="card quote reveal">
+            <p>"Follow-up reminders plus one-click reply styles are the kind of details that make an email app feel finished."</p>
+            <div><strong>Product lead</strong><span>Workflow power user</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container faq">
+        <div class="section-head reveal" style="justify-items:start;text-align:left;margin-bottom:0">
+          <div class="section-label">FAQ</div>
+          <h2 class="section-title">Questions before launch.</h2>
+          <p class="section-copy">Clear answers for users who care about privacy, Gmail access, and AI behavior.</p>
+        </div>
+        <div class="faq-list">
+          <details class="reveal" open>
+            <summary>Does SmartMail store my emails?</summary>
+            <p>SmartMail loads email content into the browser while you use it. Guest messages and local labels are stored in the current browser. Gmail remains the source of truth.</p>
+          </details>
+          <details class="reveal">
+            <summary>Does AI run automatically?</summary>
+            <p>No. SmartMail starts with AI off. AI actions run only after you choose a model or enable Auto-select.</p>
+          </details>
+          <details class="reveal">
+            <summary>How does Groq stay hidden from the browser?</summary>
+            <p>The Groq backend keeps the API key in a local backend file or environment variable. The browser calls the backend URL instead of seeing the key directly.</p>
+          </details>
+          <details class="reveal">
+            <summary>Can cleanup delete Gmail messages?</summary>
+            <p>The AI cleanup flow is SmartMail-only by design. It hides selected messages inside SmartMail so users can stay safe while reviewing suggestions.</p>
+          </details>
+          <details class="reveal">
+            <summary>Is this production hosted?</summary>
+            <p>This landing page is built as a production-ready SaaS front door. The current SmartMail app runs locally and can be extended into a hosted product.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="container cta">
+      <h2>Make email feel like leverage again.</h2>
+      <p>Open SmartMail, choose your AI model, and turn your inbox into a command center for replies, summaries, follow-ups, and cleanup.</p>
+      <a class="btn btn-primary" href="smartmail.html">Open SmartMail</a>
+      <form class="waitlist-panel" id="waitlistForm" aria-label="Join the SmartMail launch list">
+        <input id="waitlistEmail" name="email" type="email" autocomplete="email" placeholder="Enter your email for launch updates" aria-label="Email address" required />
+        <button class="btn btn-secondary" type="submit">Join waitlist</button>
+      </form>
+      <p class="form-note" id="waitlistNote" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="#top"><span class="brand-mark">S</span><span>SmartMail</span></a>
+        <p style="margin-top:10px;color:var(--faint)">AI email assistant. Provider-controlled. Gmail-first. Built for speed.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#testimonials">Testimonials</a>
+        <a href="#faq">FAQ</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="smartmail.html">Open app</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
+
+const track = (eventName, details = {}) => {
+  const payload = JSON.stringify({
+    event: eventName,
+    path: location.pathname || "/",
+    details
+  });
+  const url = "/.netlify/functions/track";
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(url, new Blob([payload], { type: "application/json" }));
+    return;
+  }
+  fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+};
+
+track("page_view");
+
+document.querySelectorAll("a[href]").forEach((link) => {
+  link.addEventListener("click", () => track("link_click", {
+    href: link.getAttribute("href"),
+    label: link.textContent.trim()
+  }));
+  if ((link.getAttribute("href") || "").includes("smartmail")) {
+    link.addEventListener("click", () => track("open_app", {
+      label: link.textContent.trim()
+    }));
+  }
+});
+
+const waitlistForm = document.getElementById("waitlistForm");
+const waitlistEmail = document.getElementById("waitlistEmail");
+const waitlistNote = document.getElementById("waitlistNote");
+
+waitlistForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const email = waitlistEmail.value.trim();
+  const saved = JSON.parse(localStorage.getItem("smartmailWaitlist") || "[]");
+  if (!saved.includes(email)) saved.push(email);
+  localStorage.setItem("smartmailWaitlist", JSON.stringify(saved));
+  track("waitlist_signup", { emailDomain: email.split("@")[1] || "unknown" });
+  waitlistNote.textContent = "You're on the launch list. SmartMail saved this locally for now.";
+  waitlistForm.reset();
+});
+</script>
+</body>
+</html>

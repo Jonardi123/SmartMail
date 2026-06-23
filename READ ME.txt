@@ -1,0 +1,45 @@
+# SmartMail
+
+SmartMail is an early-stage AI email assistant built to make Gmail faster, cleaner, and easier to manage.
+
+It includes a modern email dashboard UI, AI-powered workflow ideas, smart replies, follow-up tools, inbox cleanup concepts, and support for different AI provider workflows.
+
+## Status
+
+SmartMail is currently in early development.
+This repository mainly contains the frontend prototype and landing page.
+
+## Features
+
+* Modern responsive landing page
+* Premium email dashboard interface
+* Gmail-focused assistant concept
+* Smart reply UI
+* Follow-up and cleanup workflow ideas
+* Dark/light theme support
+* AI provider/settings interface
+* Mobile-friendly layout
+
+## Files
+
+* `index.html` - landing page
+* `smartmail.html` - main SmartMail app interface
+
+## Roadmap
+
+* Connect Gmail authentication safely
+* Add backend support
+* Add real AI summarization
+* Add smart replies
+* Add inbox cleanup tools
+* Add analytics and user settings
+* Improve mobile experience
+* Add documentation for setup
+
+## Security Notice
+
+Do not commit API keys, OAuth secrets, tokens, passwords, `.env` files, or private email data.
+
+## License
+
+License not chosen yet.
