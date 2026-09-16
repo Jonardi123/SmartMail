@@ -1,5 +1,4 @@
 # SmartMail
-# SmartMail
 
 SmartMail is an AI-powered email assistant designed to make inbox management faster, cleaner, and less stressful.
 
