@@ -24,6 +24,10 @@ Coming soon.
 
 This repository currently contains the frontend prototype and landing page for SmartMail.
 
+## Browser regression tests
+
+From this folder, run `python3 -m http.server 8000 --bind 127.0.0.1`, then open `http://127.0.0.1:8000/tests/sanitize-email.html`. The page checks the email sanitizer directly without starting Gmail or AI integrations. All 16 checks should pass.
+
 ## Vision
 
 SmartMail aims to become an intelligent email companion that can:
