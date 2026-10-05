@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>SmartMail email sanitizer regression tests</title>
+<style>body{font:16px system-ui;max-width:900px;margin:32px auto;padding:0 20px} .pass{color:#16723b}.fail{color:#b62424}</style>
+<h1>Email sanitizer regression tests</h1>
+<p id="summary">Running…</p>
+<ol id="results"></ol>
+<script type="module">
+const summary = document.getElementById('summary');
+const results = document.getElementById('results');
+try {
+  const response = await fetch('../smartmail.html');
+  if (!response.ok) throw new Error('Could not load smartmail.html. Serve the repository over local HTTP.');
+  const source = await response.text();
+  const start = source.indexOf('function sanitizeEmailHtml(html) {');
+  const end = source.indexOf('\nfunction extractBody(', start);
+  if (start < 0 || end < 0) throw new Error('Sanitizer function was not found.');
+  // Compile only the repository's sanitizer; never start Gmail or AI integrations.
+  const sanitize = new Function(source.slice(start, end) + '\nreturn sanitizeEmailHtml;')();
+  const cases = [
+    ['JavaScript URLs', '<a href="javascript:alert(1)">link</a>', doc => !doc.querySelector('a').hasAttribute('href')],
+    ['Whitespace in URL schemes', '<a href="java&#9;script:alert(1)">link</a>', doc => !doc.querySelector('a').hasAttribute('href')],
+    ['Case-insensitive schemes', '<a href="JaVaScRiPt:alert(1)">link</a>', doc => !doc.querySelector('a').hasAttribute('href')],
+    ['Data URLs', '<a href="data:text/html,example">link</a>', doc => !doc.querySelector('a').hasAttribute('href')],
+    ['Local file URLs', '<a href="file:///private.txt">link</a>', doc => !doc.querySelector('a').hasAttribute('href')],
+    ['VBScript image URLs', '<img src="vbscript:example">', doc => !doc.querySelector('img').hasAttribute('src')],
+    ['Event handlers', '<img src="https://example.org/image.png" onerror="alert(1)">', doc => !doc.querySelector('img').hasAttribute('onerror')],
+    ['Iframe and srcdoc', '<iframe srcdoc="example"></iframe><p>text</p>', doc => !doc.querySelector('iframe') && doc.body.textContent === 'text'],
+    ['SVG content', '<svg><a href="javascript:alert(1)">link</a></svg>', doc => !doc.querySelector('svg')],
+    ['MathML content', '<math><mi>example</mi></math>', doc => !doc.querySelector('math')],
+    ['Form controls', '<form><input><button>submit</button></form>', doc => !doc.querySelector('form,input,button')],
+    ['Alternate image sources', '<img srcset="https://example.org/image.png 2x">', doc => !doc.querySelector('img').hasAttribute('srcset')],
+    ['CSS URL loads', '<p style="background:url(https://example.org/track)">text</p>', doc => !doc.querySelector('p').hasAttribute('style')],
+    ['CSS expressions', '<p style="width:expression(alert(1))">text</p>', doc => !doc.querySelector('p').hasAttribute('style')],
+    ['Normal HTTPS links', '<a href="https://example.org/">link</a>', doc => doc.querySelector('a').getAttribute('href') === 'https://example.org/'],
+    ['Readable email formatting', '<p style="color:blue"><strong>Hello</strong> &amp; welcome</p>', doc => !!doc.querySelector('strong') && doc.body.textContent === 'Hello & welcome'],
+  ];
+  let failures = 0;
+  for (const [name, input, check] of cases) {
+    const output = sanitize(input);
+    const doc = new DOMParser().parseFromString(output, 'text/html');
+    const passed = check(doc);
+    if (!passed) failures++;
+    const item = document.createElement('li');
+    item.className = passed ? 'pass' : 'fail';
+    item.textContent = `${passed ? 'PASS' : 'FAIL'}: ${name}`;
+    results.append(item);
+  }
+  summary.textContent = `${cases.length - failures}/${cases.length} passed; ${failures} failed.`;
+  document.documentElement.dataset.result = failures ? 'failed' : 'passed';
+} catch (error) {
+  summary.textContent = `Test harness failed: ${error.message}`;
+  document.documentElement.dataset.result = 'failed';
+}
+</script>
+</html>
